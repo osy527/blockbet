@@ -942,7 +942,7 @@ async function loadPlayerData(){
     document.getElementById('myWon').textContent='$'+(Number(won)/1e6).toFixed(2);
     document.getElementById('myRounds').textContent=rounds.toString();
     const allowance=await usdcContract.allowance(wallet,CONTRACT_ADDRESS);
-    needsApprove=Number(allowance)<1e6;
+    needsApprove = Number(allowance) < 1000000000;
     updateBetBtn();
   }catch(e){console.warn(e);}
 }
