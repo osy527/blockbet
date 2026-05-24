@@ -747,7 +747,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
 ══════════════════════════════════════════════════════ */
 const CONTRACT_ADDRESS = "0xa6790260d62d83EBC8711b254322D7Da93882a44";
 const USDC_ADDRESS     = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const BASE_CHAIN_ID    = "0x14a34";
+const BASE_CHAIN_ID    = "0x2105";
 const GRAPH_URL = "https://api.studio.thegraph.com/query/1753935/blockbet/version/latest";
 
 const CONTRACT_ABI = [
