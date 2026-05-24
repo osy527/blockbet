@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlockBet — Predict the Block</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   TOKENS — LIGHT / DARK
+══════════════════════════════════════════ */
+:root{
+  --bg:          #f2f1ec;
+  --bg2:         #ffffff;
+  --bg3:         #ebe9e2;
+  --bg4:         #e0dfd6;
+  --border:      rgba(0,0,0,.08);
+  --border2:     rgba(0,0,0,.15);
+  --text:        #141412;
+  --text2:       #4a4940;
+  --muted:       #86847a;
+  --muted2:      #b5b3a8;
+  --accent:      #2254f4;
+  --accent-h:    #1a42d0;
+  --accent-bg:   #eef2ff;
+  --green:       #15803d;
+  --green-h:     #166534;
+  --green-bg:    #f0fdf4;
+  --red:         #dc2626;
+  --red-bg:      #fef2f2;
+  --amber:       #d97706;
+  --amber-bg:    #fffbeb;
+  --gold:        #ca8a04;
+  --shadow:      0 1px 4px rgba(0,0,0,.07);
+  --shadow-md:   0 6px 24px rgba(0,0,0,.10);
+  --shadow-lg:   0 16px 48px rgba(0,0,0,.14);
+  --r:           12px;
+  --r-sm:        8px;
+  --r-lg:        18px;
+  /* gradients */
+  --grad-digit:  linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);
+  --grad-letter: linear-gradient(135deg,#dbeafe 0%,#bfdbfe 100%);
+  --grad-hero:   linear-gradient(135deg,#eef2ff 0%,#f0fdf4 100%);
+  --grad-card:   linear-gradient(145deg,#fff 0%,#f8f7f2 100%);
+  --grad-stat:   linear-gradient(135deg,#f8faff 0%,#f0fdf4 100%);
+}
+[data-theme="dark"]{
+  --bg:          #0e0e12;
+  --bg2:         #17171e;
+  --bg3:         #1e1e28;
+  --bg4:         #252530;
+  --border:      rgba(255,255,255,.07);
+  --border2:     rgba(255,255,255,.14);
+  --text:        #f0f0f8;
+  --text2:       #a8a8c0;
+  --muted:       #6868a0;
+  --muted2:      #48486a;
+  --accent:      #6c9fff;
+  --accent-h:    #8fb4ff;
+  --accent-bg:   rgba(108,159,255,.12);
+  --green:       #4ade80;
+  --green-h:     #86efac;
+  --green-bg:    rgba(74,222,128,.10);
+  --red:         #f87171;
+  --red-bg:      rgba(248,113,113,.10);
+  --amber:       #fbbf24;
+  --amber-bg:    rgba(251,191,36,.10);
+  --gold:        #fbbf24;
+  --shadow:      0 1px 4px rgba(0,0,0,.3);
+  --shadow-md:   0 6px 24px rgba(0,0,0,.4);
+  --shadow-lg:   0 16px 48px rgba(0,0,0,.5);
+  --grad-digit:  linear-gradient(135deg,rgba(74,222,128,.15) 0%,rgba(74,222,128,.05) 100%);
+  --grad-letter: linear-gradient(135deg,rgba(108,159,255,.15) 0%,rgba(108,159,255,.05) 100%);
+  --grad-hero:   linear-gradient(135deg,rgba(108,159,255,.08) 0%,rgba(74,222,128,.06) 100%);
+  --grad-card:   linear-gradient(145deg,#1e1e28 0%,#17171e 100%);
+  --grad-stat:   linear-gradient(135deg,rgba(108,159,255,.07) 0%,rgba(74,222,128,.05) 100%);
+}
+
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:15px}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;line-height:1.6;transition:background .3s,color .3s}
+button,input{font-family:'Syne',sans-serif}
+a{color:var(--accent);text-decoration:none}
+.mono{font-family:'IBM Plex Mono',monospace}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+nav{background:var(--bg2);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 28px;position:sticky;top:0;z-index:300;box-shadow:var(--shadow);transition:background .3s}
+.logo{display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;letter-spacing:-.5px}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.logo span{color:var(--accent)}
+.nav-center{flex:1;display:flex;justify-content:center;gap:6px}
+.nav-link{font-size:13px;font-weight:500;color:var(--muted);padding:6px 14px;border-radius:20px;cursor:pointer;transition:.18s;border:1px solid transparent}
+.nav-link:hover{color:var(--text);background:var(--bg3)}
+.nav-link.active{color:var(--text);background:var(--bg3);border-color:var(--border)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.theme-btn{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.theme-btn:hover{background:var(--bg4)}
+.theme-btn svg{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.net-pill{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--bg3)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.live-dot.ok{background:var(--green);animation:dotpulse 2s infinite}
+@keyframes dotpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.btn-wallet{display:flex;align-items:center;gap:7px;padding:8px 18px;border-radius:20px;border:1.5px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap}
+.btn-wallet:hover{background:var(--accent);color:#fff}
+.btn-wallet.connected{background:var(--bg3);border-color:var(--border);color:var(--muted);font-weight:400}
+@media(max-width:768px){.nav-center{display:none}}
+
+/* ══════════════════════════════════════════
+   SECTIONS
+══════════════════════════════════════════ */
+.section{padding:28px 0;max-width:1200px;margin:0 auto;padding-left:24px;padding-right:24px}
+.sec-title{font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted2);margin-bottom:14px}
+
+/* ══════════════════════════════════════════
+   HERO STRIP
+══════════════════════════════════════════ */
+.hero-strip{background:var(--grad-hero);border-bottom:1px solid var(--border);padding:40px 24px 36px;text-align:center;position:relative;overflow:hidden}
+.hero-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% -20%,rgba(34,84,244,.08),transparent);pointer-events:none}
+.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;opacity:.8}
+.hero-title{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.1;letter-spacing:-1.5px;margin-bottom:12px}
+.hero-title span{color:var(--accent)}
+.hero-sub{font-size:16px;color:var(--text2);max-width:520px;margin:0 auto 24px;line-height:1.6}
+.hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hbadge{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-weight:500}
+.hbadge svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.hbadge.green{color:var(--green);border-color:rgba(21,128,61,.2);background:var(--green-bg)}
+.hbadge.blue{color:var(--accent);border-color:rgba(34,84,244,.2);background:var(--accent-bg)}
+
+/* ══════════════════════════════════════════
+   LIVE STATS ROW
+══════════════════════════════════════════ */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+@media(max-width:700px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-card{background:var(--grad-stat);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .18s}
+.stat-card:hover{transform:translateY(-2px)}
+.stat-card::after{content:'';position:absolute;right:-20px;bottom:-20px;width:80px;height:80px;border-radius:50%;background:var(--accent-bg);opacity:.4;pointer-events:none}
+.sc-label{font-size:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.sc-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;transition:color .3s}
+.sc-delta{font-size:11px;color:var(--green);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+.sc-delta.neg{color:var(--red)}
+/* animated number flash */
+@keyframes numflash{0%{color:var(--accent)}100%{color:var(--text)}}
+.sc-val.flash{animation:numflash .6s ease-out}
+
+/* ══════════════════════════════════════════
+   MAIN GRID
+══════════════════════════════════════════ */
+.main-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+@media(max-width:920px){.main-grid{grid-template-columns:1fr}}
+
+/* ══════════════════════════════════════════
+   BLOCK HERO CARD
+══════════════════════════════════════════ */
+.block-card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden}
+.block-card-inner{padding:22px 24px}
+.bc-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.bc-num-wrap{}
+.bc-sub{font-size:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.bc-num{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;letter-spacing:-1px;transition:all .3s}
+.bc-right{text-align:right}
+.round-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg3);color:var(--muted);display:inline-block;margin-bottom:6px}
+.cd-row{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+.cd-lbl{font-size:11px;color:var(--muted)}
+.cd-val{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--amber);min-width:28px;text-align:right}
+/* progress */
+.prog-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin:0 0 4px}
+.prog-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .8s linear}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted2);font-family:'IBM Plex Mono',monospace}
+/* meta pills */
+.bc-meta{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+.meta-pill{display:flex;flex-direction:column;gap:2px;padding:9px 14px;background:var(--bg3);border-radius:var(--r-sm);border:1px solid var(--border)}
+.mp-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);font-family:'IBM Plex Mono',monospace}
+.mp-val{font-size:13px;font-weight:500;font-family:'IBM Plex Mono',monospace}
+/* last char */
+.last-char-box{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--bg3);margin-top:4px;width:fit-content}
+.lc-label{font-size:11px;color:var(--muted)}
+.lc-char{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700}
+.lc-char.d{color:var(--green)}
+.lc-char.l{color:var(--accent)}
+.lc-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;letter-spacing:.5px}
+.lc-tag.d{background:var(--green-bg);color:var(--green)}
+.lc-tag.l{background:var(--accent-bg);color:var(--accent)}
+
+/* ══════════════════════════════════════════
+   POOL CARD
+══════════════════════════════════════════ */
+.pool-card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-top:14px}
+.pool-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+.pool-total-lbl{font-size:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.pool-total-val{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600}
+.pool-bet-count{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.pool-bar-track{height:10px;border-radius:5px;overflow:hidden;display:flex;margin:8px 0}
+.pool-d{background:linear-gradient(90deg,var(--green),#4ade80);transition:width .5s}
+.pool-l{background:linear-gradient(90deg,var(--accent),#60a5fa);transition:width .5s}
+.pool-legs{display:flex;justify-content:space-between}
+.pool-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.leg-swatch{width:10px;height:10px;border-radius:2px}
+.leg-swatch.d{background:var(--green)}
+.leg-swatch.l{background:var(--accent)}
+strong.mono{font-family:'IBM Plex Mono',monospace;font-weight:600}
+
+/* ══════════════════════════════════════════
+   BLOCK LIST
+══════════════════════════════════════════ */
+.block-list-card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-top:14px}
+.bl-row{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border);transition:.15s;cursor:default}
+.bl-row:last-child{border-bottom:none}
+.bl-row:hover{background:var(--bg3)}
+.bl-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);min-width:92px}
+.bl-hash{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-char{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;width:20px;text-align:center}
+.bl-char.d{color:var(--green)}
+.bl-char.l{color:var(--accent)}
+.bl-tag{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;letter-spacing:.5px}
+.bl-tag.d{background:var(--green-bg);color:var(--green)}
+.bl-tag.l{background:var(--accent-bg);color:var(--accent)}
+.bl-time{font-size:10px;color:var(--muted2);white-space:nowrap;margin-left:auto}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.bl-row.new{animation:slideIn .4s ease-out}
+@media(max-width:520px){.bl-hash{display:none}}
+
+/* ══════════════════════════════════════════
+   BET PANEL (RIGHT)
+══════════════════════════════════════════ */
+.bet-panel{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);padding:22px;position:sticky;top:76px}
+.bp-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.bp-title svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.choice-btn{padding:16px 12px;border:2px solid var(--border);border-radius:var(--r);cursor:pointer;text-align:center;transition:.2s;user-select:none;position:relative;overflow:hidden}
+.choice-btn::before{content:'';position:absolute;inset:0;opacity:0;transition:.2s}
+.choice-btn:hover{border-color:var(--border2)}
+.choice-btn.sel-d{border-color:var(--green);background:var(--grad-digit)}
+.choice-btn.sel-l{border-color:var(--accent);background:var(--grad-letter)}
+.cb-icon{font-size:22px;margin-bottom:6px;line-height:1}
+.cb-icon.d{color:var(--green)}
+.cb-icon.l{color:var(--accent)}
+.cb-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.cb-sub{font-size:11px;color:var(--muted)}
+.cb-pool-amt{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;margin-top:8px;line-height:1}
+.cb-pool-amt.d{color:var(--green)}
+.cb-pool-amt.l{color:var(--accent)}
+.cb-pool{font-size:11px;color:var(--muted2);margin-top:3px}
+/* quick amounts */
+.quick-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.qbtn{flex:1;min-width:48px;padding:7px 4px;border:1px solid var(--border);background:var(--bg3);border-radius:var(--r-sm);font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer;color:var(--muted);transition:.15s;text-align:center}
+.qbtn:hover{border-color:var(--border2);color:var(--text);background:var(--bg4)}
+.input-wrap{position:relative;margin-bottom:12px}
+.inp-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);pointer-events:none}
+.amt-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:11px 12px 11px 32px;border-radius:var(--r-sm);font-family:'IBM Plex Mono',monospace;font-size:15px;outline:none;transition:.18s;-moz-appearance:textfield}
+.amt-input::-webkit-inner-spin-button,.amt-input::-webkit-outer-spin-button{-webkit-appearance:none}
+.amt-input:focus{border-color:var(--accent);background:var(--bg2)}
+.amt-input::placeholder{color:var(--muted2)}
+/* info table */
+.info-box{border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:14px;background:var(--bg3)}
+.irow{display:flex;justify-content:space-between;padding:8px 13px;border-bottom:1px solid var(--border);font-size:12px}
+.irow:last-child{border-bottom:none}
+.irow .lbl{color:var(--muted)}
+.irow .val{font-family:'IBM Plex Mono',monospace}
+.irow.win .val{color:var(--green);font-weight:700}
+/* bet button */
+.btn-bet{width:100%;padding:13px;border-radius:var(--r-sm);border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;background:var(--accent);color:#fff;letter-spacing:.2px}
+.btn-bet:hover:not(:disabled){background:var(--accent-h);transform:translateY(-1px)}
+.btn-bet:active:not(:disabled){transform:none}
+.btn-bet:disabled{opacity:.45;cursor:not-allowed}
+.btn-bet.approve{background:var(--amber)}
+.btn-bet.approve:hover:not(:disabled){background:#b45309}
+.notify-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg3);cursor:pointer;transition:.15s;user-select:none}
+.notify-toggle:hover{background:var(--bg4)}
+.ntog-icon{width:18px;height:18px;flex-shrink:0;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ntog-icon.active{stroke:var(--accent)}
+.ntog-txt{font-size:12px;color:var(--muted);flex:1}
+.ntog-txt.active{color:var(--text)}
+.ntog-state{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--muted2)}
+
+/* ══════════════════════════════════════════
+   WIN/LOSS OVERLAY
+══════════════════════════════════════════ */
+#resultOverlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .3s}
+#resultOverlay.show{opacity:1;pointer-events:auto}
+.result-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.result-card{position:relative;z-index:1;background:var(--bg2);border-radius:var(--r-lg);border:2px solid var(--border);box-shadow:var(--shadow-lg);padding:40px 48px;text-align:center;max-width:380px;width:90%;transform:scale(.85);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+#resultOverlay.show .result-card{transform:scale(1)}
+.result-emoji{font-size:56px;margin-bottom:12px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.result-title{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.result-title.win{color:var(--green)}
+.result-title.loss{color:var(--red)}
+.result-sub{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.result-amount{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;margin-bottom:24px}
+.result-amount.win{color:var(--green)}
+.result-amount.loss{color:var(--red)}
+.result-close{padding:10px 28px;border-radius:20px;border:none;background:var(--bg3);color:var(--text);font-family:'Syne',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:.18s}
+.result-close:hover{background:var(--bg4)}
+/* confetti */
+.confetti-piece{position:fixed;width:8px;height:8px;border-radius:2px;pointer-events:none;animation:confettifall 1.4s ease-in both}
+@keyframes confettifall{0%{opacity:1;transform:translateY(-20px) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+
+/* ══════════════════════════════════════════
+   TABS (results section)
+══════════════════════════════════════════ */
+.results-card{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-top:14px}
+.tab-header{display:flex;gap:2px;padding:12px 14px 0;border-bottom:1px solid var(--border);background:var(--bg3)}
+.tab-btn{font-size:12px;font-weight:600;padding:7px 14px;border-radius:var(--r-sm) var(--r-sm) 0 0;border:1px solid transparent;border-bottom:none;cursor:pointer;background:transparent;color:var(--muted);transition:.15s;position:relative;bottom:-1px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:var(--bg2);border-color:var(--border);color:var(--text)}
+[data-theme="dark"] .tab-btn.active{background:var(--bg2)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:9px 16px;font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3);font-family:'IBM Plex Mono',monospace}
+td{padding:10px 16px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3);transition:.1s}
+.addr-cell{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.green-val{font-family:'IBM Plex Mono',monospace;color:var(--green);font-weight:600}
+.red-val{font-family:'IBM Plex Mono',monospace;color:var(--red)}
+.amber-val{font-family:'IBM Plex Mono',monospace;color:var(--amber);font-weight:600}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.4px}
+.badge.d{background:var(--green-bg);color:var(--green)}
+.badge.l{background:var(--accent-bg);color:var(--accent)}
+.badge.win{background:var(--green-bg);color:var(--green)}
+.badge.loss{background:var(--red-bg);color:var(--red)}
+.badge.pending{background:var(--amber-bg);color:var(--amber)}
+.rank-no{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted2)}
+.rank-1{color:#ca8a04;font-weight:700}
+.rank-2{color:#64748b;font-weight:700}
+.rank-3{color:#92400e;font-weight:700}
+.empty-state{padding:36px 16px;text-align:center;color:var(--muted2);font-size:13px}
+.empty-state svg{width:36px;height:36px;fill:none;stroke:var(--muted2);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin-bottom:10px;opacity:.5}
+
+/* ══════════════════════════════════════════
+   MY STATS BOX
+══════════════════════════════════════════ */
+.my-stats-box{background:var(--grad-card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);margin-top:14px;overflow:hidden;display:none}
+.msb-inner{display:grid;grid-template-columns:1fr 1fr 1fr}
+.msb-cell{padding:14px 16px;text-align:center;border-right:1px solid var(--border)}
+.msb-cell:last-child{border-right:none}
+.msb-val{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600}
+.msb-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+
+/* ══════════════════════════════════════════
+   FAQ — always open
+══════════════════════════════════════════ */
+.faq-section{background:var(--bg2);border-top:1px solid var(--border);padding:60px 24px}
+.faq-inner{max-width:840px;margin:0 auto}
+.faq-title{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.faq-title svg{width:28px;height:28px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.faq-sub{color:var(--muted);margin-bottom:36px}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:640px){.faq-grid{grid-template-columns:1fr}}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;background:var(--bg3)}
+.faq-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.faq-icon{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--accent-bg)}
+.faq-icon svg{width:17px;height:17px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.faq-icon.green{background:var(--green-bg)}
+.faq-icon.green svg{stroke:var(--green)}
+.faq-icon.amber{background:var(--amber-bg)}
+.faq-icon.amber svg{stroke:var(--amber)}
+.faq-icon.red{background:var(--red-bg)}
+.faq-icon.red svg{stroke:var(--red)}
+.faq-q{font-size:14px;font-weight:700;line-height:1.3}
+.faq-a{font-size:13px;color:var(--text2);line-height:1.75}
+.faq-a code{font-family:'IBM Plex Mono',monospace;background:var(--bg4);padding:1px 6px;border-radius:4px;font-size:12px}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+footer a{color:var(--muted);transition:.15s}
+footer a:hover{color:var(--text)}
+
+/* ══════════════════════════════════════════
+   NOTIFICATION TOAST
+══════════════════════════════════════════ */
+#notifStack{position:fixed;bottom:22px;right:22px;display:flex;flex-direction:column;gap:8px;z-index:400;pointer-events:none}
+.notif{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 16px;box-shadow:var(--shadow-md);display:flex;align-items:flex-start;gap:10px;font-size:13px;opacity:0;transform:translateX(24px);transition:.3s;pointer-events:auto;max-width:320px}
+.notif.show{opacity:1;transform:none}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.notif-body{flex:1}
+.notif-title{font-weight:700;margin-bottom:2px}
+.notif-msg{font-size:12px;color:var(--muted)}
+.notif-close{background:none;border:none;cursor:pointer;color:var(--muted);padding:0;line-height:1;font-size:16px;flex-shrink:0}
+
+/* ══════════════════════════════════════════
+   MISC
+══════════════════════════════════════════ */
+.spin-sm{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+section#bet-panel-anchor{scroll-margin-top:80px}
+@media(max-width:520px){
+  .meta-pill{flex:1 1 calc(50% - 5px)}
+  th,td{padding:8px 10px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════ -->
+<nav>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+    </div>
+    Block<span>Bet</span>
+  </div>
+  <div class="nav-center">
+    <span class="nav-link active" onclick="scrollTo(0,0)">Predict</span>
+    <span class="nav-link" onclick="scrollToEl('results-section')">Results</span>
+    <span class="nav-link" onclick="scrollToEl('faq-section')">How it works</span>
+  </div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="themeIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+    <div class="net-pill">
+      <div class="live-dot" id="liveDot"></div>
+      <span id="netName">Base Mainnet</span>
+    </div>
+    <button class="btn-wallet" id="btnWallet" onclick="connectWallet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      Connect Wallet
+    </button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════ -->
+<div class="hero-strip">
+  <div class="hero-eyebrow">Live on Base · USDC</div>
+  <h1 class="hero-title">Predict the <span>Block</span><br>Earn the Pool</h1>
+  <p class="hero-sub">Every Base block, bet on whether the hash ends with a digit (0–9) or letter (a–f). Winners share the entire losing pool.</p>
+  <div class="hero-badges">
+    <div class="hbadge green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Provably fair</div>
+    <div class="hbadge blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>~2s block time</div>
+    <div class="hbadge"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Non-custodial</div>
+    <div class="hbadge"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>USDC payouts</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══════════════════════════════════════════ -->
+<div class="section">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="sc-label">Total Volume</div>
+      <div class="sc-val mono" id="sVolume">$24,710</div>
+      <div class="sc-delta" id="sVolumeDelta">+$312 today</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Rounds Played</div>
+      <div class="sc-val mono" id="sRounds">1,892</div>
+      <div class="sc-delta">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Unique Players</div>
+      <div class="sc-val mono" id="sPlayers">3,471</div>
+      <div class="sc-delta" id="sPlayersDelta">+14 today</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-label">Current Pool</div>
+      <div class="sc-val mono" id="sPool">$847</div>
+      <div class="sc-delta" id="sPoolDelta">24 bets</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- ── LEFT ─────────────────────────────────── -->
+    <div>
+
+      <!-- BLOCK CARD -->
+      <div class="sec-title">Active Round</div>
+      <div class="block-card">
+        <div class="block-card-inner">
+          <div class="bc-top">
+            <div class="bc-num-wrap">
+              <div class="bc-sub">Base Block</div>
+              <div class="bc-num mono" id="blockNum">#17,204,913</div>
+            </div>
+            <div class="bc-right">
+              <div class="round-chip" id="roundChip">ROUND #892</div>
+              <div class="cd-row">
+                <span class="cd-lbl">Next block</span>
+                <span class="cd-val" id="cdVal">8s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="prog-track"><div class="prog-bar" id="progBar" style="width:55%"></div></div>
+          <div class="prog-labels">
+            <span id="progLeft">~8s remaining</span>
+            <span id="targetBlockLbl">closes at #17,204,918</span>
+          </div>
+
+          <div class="bc-meta">
+            <div class="meta-pill">
+              <span class="mp-label">Hash (last 8)</span>
+              <span class="mp-val" id="shortHash">…a3f8d9c2</span>
+            </div>
+            <div class="meta-pill">
+              <span class="mp-label">Transactions</span>
+              <span class="mp-val" id="txCount">183</span>
+            </div>
+            <div class="meta-pill">
+              <span class="mp-label">Gas used</span>
+              <span class="mp-val" id="gasUsed">72%</span>
+            </div>
+            <div class="meta-pill">
+              <span class="mp-label">Block time</span>
+              <span class="mp-val">~2s</span>
+            </div>
+          </div>
+
+          <div class="last-char-box">
+            <span class="lc-label">Previous result:</span>
+            <span class="lc-char d" id="lcChar">2</span>
+            <span class="lc-tag d" id="lcTag">DIGIT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- POOL -->
+      <div class="pool-card">
+        <div class="pool-header">
+          <div>
+            <div class="pool-total-lbl">Current Round Pool</div>
+            <div class="pool-total-val mono" id="poolTotal">$847</div>
+          </div>
+          <div class="pool-bet-count" id="poolBetCount">24 bets</div>
+        </div>
+        <div class="pool-bar-track">
+          <div class="pool-d" id="pbD" style="width:58%"></div>
+          <div class="pool-l" id="pbL" style="width:42%"></div>
+        </div>
+        <div class="pool-legs">
+          <div class="pool-leg"><div class="leg-swatch d"></div>Digit: <strong class="mono" id="plgD" style="color:var(--green);margin-left:4px">$491</strong></div>
+          <div class="pool-leg"><div class="leg-swatch l"></div>Letter: <strong class="mono" id="plgL" style="color:var(--accent);margin-left:4px">$356</strong></div>
+        </div>
+      </div>
+
+      <!-- BLOCK LIST -->
+      <div class="sec-title" style="margin-top:20px">Recent Blocks</div>
+      <div class="block-list-card" id="blockListEl"></div>
+
+      <!-- RESULTS TABS -->
+      <div id="results-section" class="sec-title" style="margin-top:20px">Results & Rankings</div>
+      <div class="results-card">
+        <div class="tab-header">
+          <button class="tab-btn active" onclick="openTab('recent',this)">Recent Wins</button>
+          <button class="tab-btn" onclick="openTab('top',this)">Leaderboard</button>
+          <button class="tab-btn" onclick="openTab('rounds',this)">Round History</button>
+          <button class="tab-btn" onclick="openTab('mine',this)">My Activity</button>
+        </div>
+        <div class="tab-pane active" id="tab-recent"><table><thead><tr><th>Address</th><th>Round</th><th>Side</th><th>Won</th></tr></thead><tbody id="tbRecent"></tbody></table></div>
+        <div class="tab-pane" id="tab-top"><table><thead><tr><th>#</th><th>Address</th><th>Total Won</th><th>Win Rate</th><th>Rounds</th></tr></thead><tbody id="tbTop"></tbody></table></div>
+        <div class="tab-pane" id="tab-rounds"><table><thead><tr><th>Round</th><th>Result</th><th>Digit Pool</th><th>Letter Pool</th><th>Prize</th></tr></thead><tbody id="tbRounds"></tbody></table></div>
+        <div class="tab-pane" id="tab-mine"><div id="myActivityEl"></div></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT ─────────────────────────────────── -->
+    <div id="bet-panel-anchor">
+      <div class="sec-title">Place Your Bet</div>
+      <div class="bet-panel">
+        <div class="bp-title">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Current Round
+        </div>
+
+        <div class="choices">
+          <div class="choice-btn" id="cD" onclick="pick('digit')">
+            <div class="cb-icon d">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+            </div>
+            <div class="cb-title">Digit</div>
+            <div class="cb-sub">Ends 0 – 9</div>
+            <div class="cb-pool-amt d" id="cpD">$491</div>
+            <div class="cb-pool" id="cpDpct">58% of pool</div>
+          </div>
+          <div class="choice-btn" id="cL" onclick="pick('letter')">
+            <div class="cb-icon l">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            </div>
+            <div class="cb-title">Letter</div>
+            <div class="cb-sub">Ends a – f</div>
+            <div class="cb-pool-amt l" id="cpL">$356</div>
+            <div class="cb-pool" id="cpLpct">42% of pool</div>
+          </div>
+        </div>
+
+        <div class="quick-row">
+          <div class="qbtn" onclick="setAmt(1)">$1</div>
+          <div class="qbtn" onclick="setAmt(5)">$5</div>
+          <div class="qbtn" onclick="setAmt(10)">$10</div>
+          <div class="qbtn" onclick="setAmt(50)">$50</div>
+          <div class="qbtn" onclick="setAmt(100)">$100</div>
+        </div>
+
+        <div class="input-wrap">
+          <span class="inp-prefix">$</span>
+          <input type="number" class="amt-input" id="amtInput" placeholder="0.00 USDC" min="1" step="1" oninput="calcEst()">
+        </div>
+
+        <div class="info-box">
+          <div class="irow"><span class="lbl">Platform fee (1%)</span><span class="val" id="iFee">—</span></div>
+          <div class="irow"><span class="lbl">Your net stake</span><span class="val" id="iNet">—</span></div>
+          <div class="irow"><span class="lbl">Your share of winning pool</span><span class="val" id="iShare">—</span></div>
+          <div class="irow win"><span class="lbl">If your side wins, you get</span><span class="val" id="iEst">—</span></div>
+        </div>
+
+        <button class="btn-bet" id="btnBet" onclick="handleBet()" disabled>
+          <span id="btnBetTxt">Connect wallet first</span>
+        </button>
+
+        <!-- NOTIFICATIONS TOGGLE -->
+        <div class="notify-toggle" id="notifyToggle" onclick="toggleNotify()">
+          <svg class="ntog-icon" id="notifyIcon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="ntog-txt" id="notifyTxt">Enable win/loss notifications</span>
+          <span class="ntog-state" id="notifyState">OFF</span>
+        </div>
+      </div>
+
+      <!-- MY STATS -->
+      <div class="my-stats-box" id="myStatsBox">
+        <div class="msb-inner">
+          <div class="msb-cell"><div class="msb-val amber-val" id="myWagered">$0</div><div class="msb-lbl">Wagered</div></div>
+          <div class="msb-cell"><div class="msb-val green-val" id="myWon">$0</div><div class="msb-lbl">Won</div></div>
+          <div class="msb-cell"><div class="msb-val mono" id="myRounds">0</div><div class="msb-lbl">Rounds</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ FAQ ══════════════════════════════════════════ -->
+<div class="faq-section" id="faq-section">
+  <div class="faq-inner">
+    <div class="faq-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      How BlockBet Works
+    </div>
+    <p class="faq-sub">Everything you need to know — mechanics, payouts, safety, and what to watch out for.</p>
+    <div class="faq-grid">
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon green"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
+          <div class="faq-q">What am I predicting?</div>
+        </div>
+        <div class="faq-a">Every Base block has a <strong>block hash</strong> — a 64-character hexadecimal string made of digits (0–9) and letters (a–f). You predict whether the <strong>very last character</strong> of the next block's hash will be a digit or a letter. Base produces a new block roughly every 2 seconds.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon green"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="faq-q">How are payouts calculated?</div>
+        </div>
+        <div class="faq-a">There are no fixed multipliers. Instead, two pools form each round — one for Digit, one for Letter. After the result, the <strong>losing pool is entirely distributed to the winners</strong>, proportional to how much each winner staked. If you staked 10% of the winning pool, you receive 10% of the combined total. A 1% platform fee is deducted from every bet at entry — not from payouts.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="faq-q">What if I bet after the window closes?</div>
+        </div>
+        <div class="faq-a">Each round has a <strong>target block</strong> — bets are only accepted before it is mined. If your transaction is confirmed after the window closes, it is <em>automatically queued for the next round</em>. Your USDC is never lost, it just joins the following bet. This is handled by the smart contract — no action needed from you.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="faq-q">Is the outcome fair and verifiable?</div>
+        </div>
+        <div class="faq-a">Results come from <code>blockhash()</code> — the cryptographic hash of a future block that nobody can predict or forge. The outcome is fully on-chain and verifiable by anyone on Basescan. For very large prize pools, Chainlink VRF can be integrated as an additional layer of manipulation resistance.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon amber"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+          <div class="faq-q">What are the real probabilities?</div>
+        </div>
+        <div class="faq-a">Each hex character is equally likely to be any of 16 values (0–9 = 10 values, a–f = 6 values). So statistically, digits appear ~62.5% of the time and letters ~37.5%. This means the letter side is less likely to win, but when it does, winners share the larger digit pool — naturally balancing the payout. No artificial odds are applied.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon green"><svg viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></div>
+          <div class="faq-q">What do I need to participate?</div>
+        </div>
+        <div class="faq-a">You need a <strong>MetaMask wallet</strong> with USDC on Base, and a small amount of ETH for gas (typically under $0.01 per transaction). First-time users must approve USDC to the contract once — this is a one-time transaction. After that, betting is a single click.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg></div>
+          <div class="faq-q">Who settles each round?</div>
+        </div>
+        <div class="faq-a">The <code>settleRound()</code> function is public — anyone can call it after the target block is mined. BlockBet operates a bot that automatically settles rounds within seconds. Winners receive USDC <strong>directly to their wallet</strong> in the same transaction. No manual claiming required.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-head">
+          <div class="faq-icon red"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="faq-q">What should I watch out for?</div>
+        </div>
+        <div class="faq-a">Only bet amounts you are comfortable losing. Because pools fluctuate each round, your estimated payout changes as more people join. Never share your seed phrase or private key. BlockBet is a decentralized contract — there is no company, no support team, and no refunds. Verify the contract address on Basescan before interacting.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════════ -->
+<footer>
+  <p>BlockBet · Smart contract on <a href="https://basescan.org" target="_blank">Base</a> · <a href="#faq-section" onclick="scrollToEl('faq-section')">How it works</a> · Not financial advice</p>
+</footer>
+
+<!-- ═══ WIN/LOSS OVERLAY ══════════════════════════════ -->
+<div id="resultOverlay">
+  <div class="result-backdrop" onclick="closeResult()"></div>
+  <div class="result-card">
+    <div class="result-emoji" id="rEmoji">🏆</div>
+    <div class="result-title" id="rTitle">You Won!</div>
+    <div class="result-sub" id="rSub">Round #892 ended with <strong>4</strong> — DIGIT</div>
+    <div class="result-amount" id="rAmount">+$42.50</div>
+    <button class="result-close" onclick="closeResult()">Close</button>
+  </div>
+</div>
+
+<!-- ═══ NOTIFICATIONS ════════════════════════════════ -->
+<div id="notifStack"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CONTRACT CONFIG
+══════════════════════════════════════════════════════ */
+const CONTRACT_ADDRESS = "0xa6790260d62d83EBC8711b254322D7Da93882a44";
+const USDC_ADDRESS     = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const BASE_CHAIN_ID    = "0x2105";
+const GRAPH_URL = "https://api.studio.thegraph.com/query/1753935/blockbet/version/latest";
+
+const CONTRACT_ABI = [
+  "function placeBet(uint8 choice, uint256 amount)",
+  "function settleRound()",
+  "function getCurrentRound() view returns (tuple(uint256,uint256,uint256,uint256,bool,bool,uint8,uint256,uint256))",
+  "function getOdds() view returns (uint256,uint256)",
+  "function currentRoundId() view returns (uint256)",
+  "function getPlayerHistory(address,uint256) view returns (uint256[],uint256[],uint8[],bool[])",
+  "function getPlayerStats(address) view returns (uint256,uint256,uint256)",
+];
+const USDC_ABI = [
+  "function approve(address,uint256) returns (bool)",
+  "function allowance(address,address) view returns (uint256)",
+];
+
+/* ══════════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════════ */
+let wallet=null, provider=null, signer=null, contract=null, usdcContract=null;
+let selectedChoice=null, needsApprove=false, notifyEnabled=false, isDemo=true;
+let activeBet=null; // {roundId, choice, amount}
+const pool={digit:491,letter:356};
+
+/* ══════════════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════════════ */
+const saved=localStorage.getItem('bbTheme')||'light';
+document.documentElement.setAttribute('data-theme',saved);
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('bbTheme',next);
+}
+
+/* ══════════════════════════════════════════════════════
+   MOCK DATA
+══════════════════════════════════════════════════════ */
+let mockBlock=17204913, mockRound=892, mockCd=8, mockProg=55;
+const HEX='0123456789abcdef';
+const mkBlocks=[
+  {n:17204912,hash:'0x7a3f8d9c2b1e4f6a',last:'c',t:'letter',ago:'2s'},
+  {n:17204911,hash:'0x3b2e9f5a1d8c4b7e',last:'4',t:'digit', ago:'4s'},
+  {n:17204910,hash:'0xa1c5e8b2f4d7a0c3',last:'f',t:'letter',ago:'6s'},
+  {n:17204909,hash:'0x5d8b1e4f7a2c5e8b',last:'9',t:'digit', ago:'8s'},
+  {n:17204908,hash:'0x2e5f8a1c4d7e0b3f',last:'b',t:'letter',ago:'10s'},
+  {n:17204907,hash:'0x8c1d4a7e0f3b6c9d',last:'1',t:'digit', ago:'12s'},
+  {n:17204906,hash:'0xf3b6e9c2a5d8f1b4',last:'e',t:'letter',ago:'14s'},
+];
+const mkRecent=[
+  {addr:'0x3f4a…9b2c',round:891,choice:'letter',won:14.20},
+  {addr:'0xa1c5…7d0e',round:891,choice:'digit', won:25.60},
+  {addr:'0x8b2f…1e3a',round:890,choice:'digit', won:5.40},
+  {addr:'0x5e9d…4c8b',round:890,choice:'letter',won:52.10},
+  {addr:'0xc2a7…0f1d',round:889,choice:'digit', won:16.85},
+];
+const mkLeader=[
+  {addr:'0x5e9d…4c8b',won:9370,rate:61,rounds:82},
+  {addr:'0xa1c5…7d0e',won:7105,rate:54,rounds:61},
+  {addr:'0x8b2f…1e3a',won:5545,rate:49,rounds:49},
+  {addr:'0x3f4a…9b2c',won:4420,rate:45,rounds:38},
+  {addr:'0xf1d8…2e5a',won:3755,rate:42,rounds:31},
+];
+const mkRounds=[
+  {id:891,result:'DIGIT',dPool:640,lPool:310,prize:950},
+  {id:890,result:'LETTER',dPool:280,lPool:720,prize:1000},
+  {id:889,result:'DIGIT',dPool:510,lPool:240,prize:750},
+  {id:888,result:'LETTER',dPool:190,lPool:880,prize:1070},
+  {id:887,result:'DIGIT',dPool:430,lPool:320,prize:750},
+];
+const mkHistory=[
+  {round:891,choice:'letter',amt:10, won:false,payout:0},
+  {round:890,choice:'digit', amt:25, won:true, payout:42.5},
+  {round:889,choice:'digit', amt:10, won:true, payout:16.3},
+  {round:888,choice:'letter',amt:50, won:false,payout:0},
+  {round:887,choice:'digit', amt:5,  won:true, payout:8.1},
+];
+
+/* ══════════════════════════════════════════════════════
+   RENDER HELPERS
+══════════════════════════════════════════════════════ */
+function renderBlocks(){
+  document.getElementById('blockListEl').innerHTML=
+    mkBlocks.map((b,i)=>`<div class="bl-row${i===0?' new':''}">
+      <span class="bl-num">#${b.n.toLocaleString()}</span>
+      <span class="bl-hash">${b.hash}…</span>
+      <span class="bl-char ${b.t==='digit'?'d':'l'}">${b.last}</span>
+      <span class="bl-tag ${b.t==='digit'?'d':'l'}">${b.t.toUpperCase()}</span>
+      <span class="bl-time">${b.ago} ago</span>
+    </div>`).join('');
+}
+function renderRecent(){
+  document.getElementById('tbRecent').innerHTML=
+    mkRecent.map(r=>`<tr>
+      <td class="addr-cell">${r.addr}</td>
+      <td class="mono" style="color:var(--muted)">#${r.round}</td>
+      <td><span class="badge ${r.choice==='digit'?'d':'l'}">${r.choice.toUpperCase()}</span></td>
+      <td class="green-val">+$${r.won.toFixed(2)}</td>
+    </tr>`).join('');
+}
+function renderLeader(){
+  const medals=['rank-1','rank-2','rank-3'];
+  document.getElementById('tbTop').innerHTML=
+    mkLeader.map((r,i)=>`<tr>
+      <td><span class="rank-no ${i<3?medals[i]:''}">${i<3?['①','②','③'][i]:i+1}</span></td>
+      <td class="addr-cell">${r.addr}</td>
+      <td class="green-val">$${r.won.toLocaleString()}</td>
+      <td class="mono" style="color:var(--muted)">${r.rate}%</td>
+      <td class="mono" style="color:var(--muted)">${r.rounds}</td>
+    </tr>`).join('');
+}
+function renderRounds(){
+  document.getElementById('tbRounds').innerHTML=
+    mkRounds.map(r=>`<tr>
+      <td class="mono" style="color:var(--muted)">#${r.id}</td>
+      <td><span class="badge ${r.result==='DIGIT'?'d':'l'}">${r.result}</span></td>
+      <td class="mono">$${r.dPool}</td>
+      <td class="mono">$${r.lPool}</td>
+      <td class="green-val">$${r.prize}</td>
+    </tr>`).join('');
+}
+function renderHistory(data){
+  const el=document.getElementById('myActivityEl');
+  if(!wallet){el.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><br>Connect your wallet to view activity</div>';return;}
+  if(!data||!data.length){el.innerHTML='<div class="empty-state">No bets placed yet</div>';return;}
+  el.innerHTML=`<table><thead><tr><th>Round</th><th>Side</th><th>Stake</th><th>Result</th><th>Payout</th></tr></thead><tbody>
+    ${data.map(r=>`<tr>
+      <td class="mono" style="color:var(--muted)">#${r.round}</td>
+      <td><span class="badge ${r.choice==='digit'?'d':'l'}">${r.choice.toUpperCase()}</span></td>
+      <td class="amber-val">$${r.amt.toFixed(2)}</td>
+      <td><span class="badge ${r.won?'win':'loss'}">${r.won?'WIN':'LOSS'}</span></td>
+      <td class="${r.won?'green-val':'mono'}" style="${r.won?'':'color:var(--muted)'}">${r.won?'+$'+r.payout.toFixed(2):'—'}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function updatePool(){
+  const total=pool.digit+pool.letter;
+  const dp=(pool.digit/total*100).toFixed(0);
+  const lp=(100-dp);
+  document.getElementById('poolTotal').textContent='$'+total.toFixed(0);
+  document.getElementById('plgD').textContent='$'+pool.digit.toFixed(0);
+  document.getElementById('plgL').textContent='$'+pool.letter.toFixed(0);
+  document.getElementById('pbD').style.width=dp+'%';
+  document.getElementById('pbL').style.width=lp+'%';
+  document.getElementById('cpD').textContent='$'+pool.digit.toFixed(0);
+  document.getElementById('cpDpct').textContent=dp+'% of current pool';
+  document.getElementById('cpL').textContent='$'+pool.letter.toFixed(0);
+  document.getElementById('cpLpct').textContent=lp+'% of current pool';
+  document.getElementById('sPool').textContent='$'+total.toFixed(0);
+  calcEst();
+}
+
+/* ══════════════════════════════════════════════════════
+   WALLET
+══════════════════════════════════════════════════════ */
+async function connectWallet(){
+  if(wallet)return;
+  if(!window.ethereum){pushNotif('MetaMask not found','Please install MetaMask to use BlockBet.','err');return;}
+  try{
+    try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:BASE_CHAIN_ID}]});}
+    catch(sw){if(sw.code===4902)await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:BASE_CHAIN_ID,chainName:'Base',nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},rpcUrls:['https://mainnet.base.org'],blockExplorerUrls:['https://basescan.org']}]});}
+    const accounts=await window.ethereum.request({method:'eth_requestAccounts'});
+    wallet=accounts[0];
+    if(window.ethers){
+      provider=new ethers.BrowserProvider(window.ethereum);
+      signer=await provider.getSigner();
+      if(CONTRACT_ADDRESS!=='0xYOUR_CONTRACT_ADDRESS'){
+        contract=new ethers.Contract(CONTRACT_ADDRESS,CONTRACT_ABI,signer);
+        usdcContract=new ethers.Contract(USDC_ADDRESS,USDC_ABI,signer);
+        isDemo=false;
+      }
+    }
+    const short=wallet.slice(0,6)+'…'+wallet.slice(-4);
+    document.getElementById('btnWallet').textContent=short;
+    document.getElementById('btnWallet').classList.add('connected');
+    document.getElementById('liveDot').classList.add('ok');
+    document.getElementById('myStatsBox').style.display='block';
+    updateBetBtn();
+    renderHistory(isDemo?mkHistory:null);
+    if(!isDemo)await loadPlayerData();
+    pushNotif('Wallet connected',short+' connected on Base.','ok');
+    window.ethereum.on('accountsChanged',()=>location.reload());
+  }catch(e){pushNotif('Connection failed',e.message||'User rejected request.','err');}
+}
+
+async function loadPlayerData(){
+  try{
+    const[w,won,rounds]=await contract.getPlayerStats(wallet);
+    document.getElementById('myWagered').textContent='$'+(Number(w)/1e6).toFixed(2);
+    document.getElementById('myWon').textContent='$'+(Number(won)/1e6).toFixed(2);
+    document.getElementById('myRounds').textContent=rounds.toString();
+    const allowance=await usdcContract.allowance(wallet,CONTRACT_ADDRESS);
+    needsApprove=Number(allowance)<1e6;
+    updateBetBtn();
+  }catch(e){console.warn(e);}
+}
+
+/* ══════════════════════════════════════════════════════
+   BETTING
+══════════════════════════════════════════════════════ */
+function pick(c){
+  selectedChoice=c;
+  document.getElementById('cD').className='choice-btn'+(c==='digit'?' sel-d':'');
+  document.getElementById('cL').className='choice-btn'+(c==='letter'?' sel-l':'');
+  calcEst();updateBetBtn();
+}
+function setAmt(v){document.getElementById('amtInput').value=v;calcEst();}
+function calcEst(){
+  const amt=parseFloat(document.getElementById('amtInput').value);
+  if(!amt||amt<=0){
+    ['iFee','iNet','iShare','iEst'].forEach(id=>document.getElementById(id).textContent='—');
+    updateBetBtn();return;
+  }
+  const fee=(amt*0.01).toFixed(2);
+  const net=parseFloat((amt-fee).toFixed(2));
+  // After this bet, what share of the winning pool would this stake be?
+  const myPool=selectedChoice==='digit'?pool.digit+net:pool.letter+net;
+  const share=myPool>0?(net/myPool*100).toFixed(1):'—';
+  // If winner: get back (net / winningPool) × totalPool (minus 1% already taken at entry)
+  const totalAfter=pool.digit+pool.letter+net;
+  const est=myPool>0?((net/myPool)*totalAfter).toFixed(2):'—';
+  document.getElementById('iFee').textContent='$'+fee;
+  document.getElementById('iNet').textContent='$'+net.toFixed(2);
+  document.getElementById('iShare').textContent=share!=='—'?share+'% of your side':'—';
+  document.getElementById('iEst').textContent=est!=='—'?'~$'+est:'—';
+  updateBetBtn();
+}
+function updateBetBtn(){
+  const btn=document.getElementById('btnBet');
+  const txt=document.getElementById('btnBetTxt');
+  const amt=parseFloat(document.getElementById('amtInput').value);
+  btn.className='btn-bet';
+  if(!wallet){btn.disabled=true;txt.textContent='Connect wallet first';return;}
+  if(!selectedChoice){btn.disabled=true;txt.textContent='Select Digit or Letter';return;}
+  if(!amt||amt<1){btn.disabled=true;txt.textContent='Enter amount (min $1)';return;}
+  if(needsApprove){btn.disabled=false;btn.classList.add('approve');txt.textContent='Approve USDC (one-time)';return;}
+  btn.disabled=false;
+  txt.textContent=`Bet $${amt.toFixed(2)} on ${selectedChoice.toUpperCase()}`;
+}
+async function handleBet(){
+  if(!wallet)return;
+  if(needsApprove){await approveUSDC();return;}
+  await placeBet();
+}
+async function approveUSDC(){
+  if(isDemo){needsApprove=false;updateBetBtn();pushNotif('USDC Approved','Ready to bet (demo mode).','ok');return;}
+  try{
+    document.getElementById('btnBetTxt').innerHTML='<span class="spin-sm"></span> Approving…';
+    document.getElementById('btnBet').disabled=true;
+    const tx=await usdcContract.approve(CONTRACT_ADDRESS,ethers.MaxUint256);
+    await tx.wait();
+    needsApprove=false;updateBetBtn();
+    pushNotif('USDC Approved','You can now place bets.','ok');
+  }catch(e){pushNotif('Approval failed',e.message,'err');updateBetBtn();}
+}
+async function placeBet(){
+  const amt=parseFloat(document.getElementById('amtInput').value);
+  if(!amt||amt<1)return;
+  const btn=document.getElementById('btnBet');
+  const txt=document.getElementById('btnBetTxt');
+  if(isDemo){
+    btn.disabled=true;txt.innerHTML='<span class="spin-sm"></span> Confirming…';
+    activeBet={roundId:mockRound,choice:selectedChoice,amount:amt};
+    setTimeout(()=>{
+      const net=amt*0.99;
+      if(selectedChoice==='digit')pool.digit+=net;else pool.letter+=net;
+      updatePool();
+      document.getElementById('amtInput').value='';
+      calcEst();updateBetBtn();
+      pushNotif('Bet placed!',`$${amt.toFixed(2)} on ${selectedChoice.toUpperCase()} — Round #${mockRound}`,'ok');
+      mkHistory.unshift({round:mockRound,choice:selectedChoice,amt,won:false,payout:0});
+      if(document.getElementById('tab-mine').classList.contains('active'))renderHistory(mkHistory);
+    },1000);
+    return;
+  }
+  try{
+    btn.disabled=true;txt.innerHTML='<span class="spin-sm"></span> Confirming…';
+    const amtU=BigInt(Math.floor(amt*1e6));
+    const tx=await contract.placeBet(selectedChoice==='digit'?0:1,amtU);
+    await tx.wait();
+    activeBet={roundId:mockRound,choice:selectedChoice,amount:amt};
+    pushNotif('Bet confirmed!',`$${amt} on ${selectedChoice.toUpperCase()} is live.`,'ok');
+    document.getElementById('amtInput').value='';
+    calcEst();await loadPlayerData();updateBetBtn();
+  }catch(e){pushNotif('Transaction failed',e.reason||e.message,'err');updateBetBtn();}
+}
+
+/* ══════════════════════════════════════════════════════
+   WIN/LOSS OVERLAY
+══════════════════════════════════════════════════════ */
+function showResult(won, char, type, amount){
+  document.getElementById('rEmoji').textContent=won?'🏆':'💸';
+  document.getElementById('rTitle').textContent=won?'You Won!':'You Lost';
+  document.getElementById('rTitle').className='result-title '+(won?'win':'loss');
+  document.getElementById('rSub').innerHTML=`Round #${mockRound} ended with <strong>${char}</strong> — ${type.toUpperCase()}`;
+  document.getElementById('rAmount').textContent=(won?'+':'-')+'$'+Math.abs(amount).toFixed(2);
+  document.getElementById('rAmount').className='result-amount '+(won?'win':'loss');
+  document.getElementById('resultOverlay').classList.add('show');
+  if(won)launchConfetti();
+}
+function closeResult(){document.getElementById('resultOverlay').classList.remove('show');}
+function launchConfetti(){
+  const colors=['#2254f4','#15803d','#d97706','#dc2626','#7c3aed','#0891b2'];
+  for(let i=0;i<40;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:${Math.random()*30}vh;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.6}s;animation-duration:${1.2+Math.random()*0.6}s;transform:rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),2000);
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════════════════════════ */
+function toggleNotify(){
+  notifyEnabled=!notifyEnabled;
+  document.getElementById('notifyIcon').className='ntog-icon'+(notifyEnabled?' active':'');
+  document.getElementById('notifyTxt').className='ntog-txt'+(notifyEnabled?' active':'');
+  document.getElementById('notifyTxt').textContent=notifyEnabled?'Notifications on — you\'ll be alerted':'Enable win/loss notifications';
+  document.getElementById('notifyState').textContent=notifyEnabled?'ON':'OFF';
+  if(notifyEnabled)pushNotif('Notifications on','You\'ll be notified after each round you\'ve bet on.','ok');
+}
+function pushNotif(title,msg,type){
+  const stack=document.getElementById('notifStack');
+  const el=document.createElement('div');
+  el.className='notif';
+  const col=type==='ok'?'var(--green)':type==='err'?'var(--red)':'var(--amber)';
+  el.innerHTML=`<div class="notif-dot" style="background:${col}"></div><div class="notif-body"><div class="notif-title">${title}</div><div class="notif-msg">${msg}</div></div><button class="notif-close" onclick="this.parentElement.remove()">×</button>`;
+  stack.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('show'));
+  setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),400);},4500);
+}
+
+/* ══════════════════════════════════════════════════════
+   TABS & FAQ
+══════════════════════════════════════════════════════ */
+function openTab(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='mine')renderHistory(wallet?mkHistory:null);
+}
+
+function scrollToEl(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth'});}
+
+/* ══════════════════════════════════════════════════════
+   LIVE SIMULATION TICK
+══════════════════════════════════════════════════════ */
+let totalVolume=24710,totalRounds=1892,totalPlayers=3471;
+
+setInterval(()=>{
+  mockCd--;
+  mockProg+=100/9;
+
+  // Flash stats occasionally
+  if(Math.random()<0.08){
+    totalVolume+=Math.floor(Math.random()*50)+5;
+    const el=document.getElementById('sVolume');
+    el.textContent='$'+totalVolume.toLocaleString();
+    el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+  }
+
+  if(mockCd<=0){
+    mockCd=2+Math.floor(Math.random()*3); // Base ~2s blocks
+    mockProg=0;
+    mockBlock++;
+    totalRounds++;
+
+    const newLast=HEX[Math.floor(Math.random()*16)];
+    const isDig=/[0-9]/.test(newLast);
+    const type=isDig?'digit':'letter';
+
+    // update display
+    document.getElementById('blockNum').textContent='#'+mockBlock.toLocaleString();
+    document.getElementById('lcChar').textContent=newLast;
+    document.getElementById('lcChar').className='lc-char '+(isDig?'d':'l');
+    document.getElementById('lcTag').textContent=isDig?'DIGIT':'LETTER';
+    document.getElementById('lcTag').className='lc-tag '+(isDig?'d':'l');
+    document.getElementById('sRounds').textContent=totalRounds.toLocaleString();
+
+    // new block in list
+    const h='0x'+Array.from({length:16},()=>HEX[Math.floor(Math.random()*16)]).join('');
+    mkBlocks.unshift({n:mockBlock,hash:h,last:newLast,t:type,ago:'just now'});
+    if(mkBlocks.length>10)mkBlocks.pop();
+    mkBlocks.forEach((b,i)=>{if(i>0)b.ago=(i*mockCd+i)+'s';});
+    renderBlocks();
+
+    // every 5 blocks = new round
+    if(mockBlock%5===0){
+      mockRound++;
+      document.getElementById('roundChip').textContent='ROUND #'+mockRound;
+
+      // check if user had a bet
+      if(activeBet&&activeBet.roundId===mockRound-1){
+        const didWin=(activeBet.choice===type);
+        const total2=pool.digit+pool.letter;
+        const wp=activeBet.choice==='digit'?pool.digit:pool.letter;
+        const payout=wp>0?(activeBet.amount*0.99/wp)*total2*0.99:0;
+
+        if(notifyEnabled||true){ // always show overlay for demo
+          setTimeout(()=>showResult(didWin,newLast,type,didWin?payout:activeBet.amount),300);
+        }
+        if(notifyEnabled){
+          pushNotif(didWin?'You won! 🎉':'Round lost',didWin?`+$${payout.toFixed(2)} USDC credited to your wallet`:`Better luck next round!`,didWin?'ok':'err');
+        }
+        // update mock history
+        if(mkHistory[0]&&mkHistory[0].round===activeBet.roundId){
+          mkHistory[0].won=didWin;mkHistory[0].payout=didWin?payout:0;
+        }
+        // update stats
+        document.getElementById('myWagered').textContent='$'+activeBet.amount.toFixed(2);
+        document.getElementById('myWon').textContent=didWin?'$'+payout.toFixed(2):'$0.00';
+        activeBet=null;
+      }
+
+      // new round pool
+      pool.digit=150+Math.random()*400;
+      pool.letter=100+Math.random()*300;
+      updatePool();
+    }
+  }
+
+  document.getElementById('cdVal').textContent=mockCd+'s';
+  document.getElementById('progBar').style.width=Math.min(mockProg,97)+'%';
+  document.getElementById('progLeft').textContent='~'+mockCd+'s remaining';
+  document.getElementById('targetBlockLbl').textContent='closes at #'+(mockBlock+5).toLocaleString();
+  document.getElementById('sPool').textContent='$'+(pool.digit+pool.letter).toFixed(0);
+},1000);
+
+/* ══════════════════════════════════════════════════════
+   THE GRAPH — live data fetch
+══════════════════════════════════════════════════════ */
+async function fetchGraph(query){
+  if(GRAPH_URL.includes('YOUR_ID'))return null;
+  try{
+    const r=await fetch(GRAPH_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query})});
+    const d=await r.json();return d.data;
+  }catch(e){return null;}
+}
+async function loadGraphData(){
+  const data=await fetchGraph(`{
+    globalStats(id:"global"){totalVolume totalRounds totalBets totalPlayers digitWins letterWins}
+    rounds(first:10,orderBy:roundId,orderDirection:desc){roundId digitPool letterPool totalPool settled winningChoice betCount totalPrize}
+    players(first:10,orderBy:totalWon,orderDirection:desc){id totalWon totalWagered roundsPlayed winRate}
+  }`);
+  if(!data)return;
+  const g=data.globalStats;
+  if(g){
+    document.getElementById('sVolume').textContent='$'+parseFloat(g.totalVolume).toFixed(0);
+    document.getElementById('sRounds').textContent=parseInt(g.totalRounds).toLocaleString();
+    document.getElementById('sPlayers').textContent=parseInt(g.totalPlayers).toLocaleString();
+  }
+  if(data.players){
+    mkLeader.splice(0);
+    data.players.forEach(p=>mkLeader.push({addr:p.id.slice(0,6)+'…'+p.id.slice(-4),won:parseFloat(p.totalWon),rate:Math.round(parseFloat(p.winRate)*100),rounds:parseInt(p.roundsPlayed)}));
+    renderLeader();
+  }
+  if(data.rounds){
+    mkRounds.splice(0);
+    data.rounds.forEach(r=>mkRounds.push({id:parseInt(r.roundId),result:r.winningChoice||'—',dPool:parseFloat(r.digitPool).toFixed(0),lPool:parseFloat(r.letterPool).toFixed(0),prize:parseFloat(r.totalPrize).toFixed(0)}));
+    renderRounds();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════ */
+renderBlocks();renderRecent();renderLeader();renderRounds();renderHistory(null);
+updatePool();
+loadGraphData();
+setInterval(loadGraphData,30000); // refresh graph every 30s
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+</body>
+</html>
