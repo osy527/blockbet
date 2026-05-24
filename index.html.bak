@@ -751,7 +751,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
 /* ══════════════════════════════════════════════════════
    CONTRACT CONFIG
 ══════════════════════════════════════════════════════ */
-const CONTRACT_ADDRESS = "0xbA6412124FdD5E9b376e6269ACC80f1C86b855f0";
+const CONTRACT_ADDRESS = "0xbf1a8d6053884A8D8d88B2d374929eFB91c4AFf9";
 const USDC_ADDRESS     = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Base Sepolia
 const BASE_CHAIN_ID    = "0x14a34"; // Base Sepolia 84532
 const GRAPH_URL        = "https://api.studio.thegraph.com/query/1753935/blockbet/version/latest";

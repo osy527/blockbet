@@ -1333,7 +1333,35 @@ async function loadGraphData(){
 renderBlocks();renderRecent();renderLeader();renderRounds();renderHistory(null);
 updatePool();
 loadGraphData();
-setInterval(loadGraphData,30000); // refresh graph every 30s
+setInterval(loadGraphData,30000);
+
+// Sayfa yüklenince kontratı oku — cüzdan olmadan da
+(async()=>{
+  if(typeof window.ethers !== 'undefined' && CONTRACT_ADDRESS !== '0xYOUR_CONTRACT_ADDRESS'){
+    try{
+      const p = new ethers.JsonRpcProvider('https://sepolia.base.org');
+      const c = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, p);
+      const [round, rid, currentBlock] = await Promise.all([
+        c.getCurrentRound(), c.currentRoundId(), p.getBlockNumber()
+      ]);
+      const targetBlk = Number(round[1]);
+      const blksLeft  = Math.max(0, targetBlk - currentBlock);
+      roundCd  = blksLeft * 2;
+      mockBlock = currentBlock;
+      mockRound = Number(rid);
+      document.getElementById('roundChip').textContent = 'ROUND #' + Number(rid);
+      document.getElementById('blockNum').textContent  = '#' + currentBlock.toLocaleString();
+      document.getElementById('targetBlockLbl').textContent = 'closes at #' + targetBlk.toLocaleString();
+      document.getElementById('cdVal').textContent     = roundCd + 's';
+      document.getElementById('progBar').style.width   = Math.min(((30-roundCd)/30)*100,98)+'%';
+      document.getElementById('progLeft').textContent  = '~' + roundCd + 's remaining';
+      const dp = (Number(round[2])/1e6);
+      const lp = (Number(round[3])/1e6);
+      pool.digit = dp; pool.letter = lp;
+      updatePool();
+    }catch(e){ console.warn('Init sync error', e); }
+  }
+})();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </body>
