@@ -222,6 +222,12 @@ strong.mono{font-family:'IBM Plex Mono',monospace;font-weight:600}
 .bl-tag.d{background:var(--green-bg);color:var(--green)}
 .bl-tag.l{background:var(--accent-bg);color:var(--accent)}
 .bl-time{font-size:10px;color:var(--muted2);white-space:nowrap;margin-left:auto}
+/* ── Bet highlight markers ── */
+.bl-bet-marker{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;white-space:nowrap;letter-spacing:.3px;flex-shrink:0}
+.bl-bet-marker svg{flex-shrink:0}
+.bl-bet-marker.pending{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(217,119,6,.25)}
+.bl-bet-marker.win{background:var(--green-bg);color:var(--green);border:1px solid rgba(21,128,61,.2)}
+.bl-bet-marker.loss{background:var(--red-bg);color:var(--red);border:1px solid rgba(220,38,38,.2)}
 @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .bl-row.new{animation:slideIn .4s ease-out}
 @media(max-width:520px){.bl-hash{display:none}}
@@ -439,7 +445,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
   <p class="hero-sub">Every Base block, bet on whether the hash ends with a digit (0–9) or letter (a–f). Winners share the entire losing pool.</p>
   <div class="hero-badges">
     <div class="hbadge green"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Provably fair</div>
-    <div class="hbadge blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>~2s block time</div>
+    <div class="hbadge blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>~20s betting window</div>
     <div class="hbadge"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Non-custodial</div>
     <div class="hbadge"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>USDC payouts</div>
   </div>
@@ -452,23 +458,23 @@ section#bet-panel-anchor{scroll-margin-top:80px}
   <div class="stats-grid">
     <div class="stat-card">
       <div class="sc-label">Total Volume</div>
-      <div class="sc-val mono" id="sVolume">$24,710</div>
-      <div class="sc-delta" id="sVolumeDelta">+$312 today</div>
+      <div class="sc-val mono" id="sVolume">—</div>
+      <div class="sc-delta" id="sVolumeDelta" style="color:var(--muted2)">loading…</div>
     </div>
     <div class="stat-card">
       <div class="sc-label">Rounds Played</div>
-      <div class="sc-val mono" id="sRounds">1,892</div>
-      <div class="sc-delta">All time</div>
+      <div class="sc-val mono" id="sRounds">—</div>
+      <div class="sc-delta" style="color:var(--muted2)">all time</div>
     </div>
     <div class="stat-card">
       <div class="sc-label">Unique Players</div>
-      <div class="sc-val mono" id="sPlayers">3,471</div>
-      <div class="sc-delta" id="sPlayersDelta">+14 today</div>
+      <div class="sc-val mono" id="sPlayers">—</div>
+      <div class="sc-delta" id="sPlayersDelta" style="color:var(--muted2)">loading…</div>
     </div>
     <div class="stat-card">
       <div class="sc-label">Current Pool</div>
-      <div class="sc-val mono" id="sPool">$847</div>
-      <div class="sc-delta" id="sPoolDelta">24 bets</div>
+      <div class="sc-val mono" id="sPool">$0</div>
+      <div class="sc-delta" id="sPoolDelta" style="color:var(--muted2)">0 bets</div>
     </div>
   </div>
 
@@ -516,7 +522,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
             </div>
             <div class="meta-pill">
               <span class="mp-label">Block time</span>
-              <span class="mp-val">~2s</span>
+              <span class="mp-val">~2s / block</span>
             </div>
           </div>
 
@@ -533,7 +539,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
         <div class="pool-header">
           <div>
             <div class="pool-total-lbl">Current Round Pool</div>
-            <div class="pool-total-val mono" id="poolTotal">$847</div>
+            <div class="pool-total-val mono" id="poolTotal">$0</div>
           </div>
           <div class="pool-bet-count" id="poolBetCount">24 bets</div>
         </div>
@@ -658,7 +664,7 @@ section#bet-panel-anchor{scroll-margin-top:80px}
           <div class="faq-icon green"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div>
           <div class="faq-q">What am I predicting?</div>
         </div>
-        <div class="faq-a">Every Base block has a <strong>block hash</strong> — a 64-character hexadecimal string made of digits (0–9) and letters (a–f). You predict whether the <strong>very last character</strong> of the next block's hash will be a digit or a letter. Base produces a new block roughly every 2 seconds.</div>
+        <div class="faq-a">Every Base block has a <strong>block hash</strong> — a 64-character hexadecimal string made of digits (0–9) and letters (a–f). You predict whether the <strong>very last character</strong> of the result block's hash will be a digit or a letter. Base produces a new block roughly every 2 seconds. Each round spans <strong>10 blocks (~20 seconds)</strong> — that's your window to place a bet before the result is locked.</div>
       </div>
 
       <div class="faq-item">
@@ -746,9 +752,9 @@ section#bet-panel-anchor{scroll-margin-top:80px}
    CONTRACT CONFIG
 ══════════════════════════════════════════════════════ */
 const CONTRACT_ADDRESS = "0xbA6412124FdD5E9b376e6269ACC80f1C86b855f0";
-const USDC_ADDRESS     = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const BASE_CHAIN_ID    = "0x14a34";
-const GRAPH_URL = "https://api.studio.thegraph.com/query/1753935/blockbet/version/latest";
+const USDC_ADDRESS     = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"; // Base Sepolia
+const BASE_CHAIN_ID    = "0x14a34"; // Base Sepolia 84532
+const GRAPH_URL        = "https://api.studio.thegraph.com/query/1753935/blockbet/version/latest";
 
 const CONTRACT_ABI = [
   "function placeBet(uint8 choice, uint256 amount)",
@@ -770,7 +776,10 @@ const USDC_ABI = [
 let wallet=null, provider=null, signer=null, contract=null, usdcContract=null;
 let selectedChoice=null, needsApprove=false, notifyEnabled=false, isDemo=true;
 let activeBet=null; // {roundId, choice, amount}
-const pool={digit:491,letter:356};
+// betLog: blockNumber → {choice, won, pending}
+// stores every block the user bet on so we can highlight it in the list
+const betLog=new Map();
+const pool={digit:0,letter:0};
 
 /* ══════════════════════════════════════════════════════
    THEME
@@ -787,7 +796,7 @@ function toggleTheme(){
 /* ══════════════════════════════════════════════════════
    MOCK DATA
 ══════════════════════════════════════════════════════ */
-let mockBlock=17204913, mockRound=892, mockCd=8, mockProg=55;
+let mockBlock=17204913, mockRound=892, mockCd=20, mockProg=0;
 const HEX='0123456789abcdef';
 const mkBlocks=[
   {n:17204912,hash:'0x7a3f8d9c2b1e4f6a',last:'c',t:'letter',ago:'2s'},
@@ -832,13 +841,47 @@ const mkHistory=[
 ══════════════════════════════════════════════════════ */
 function renderBlocks(){
   document.getElementById('blockListEl').innerHTML=
-    mkBlocks.map((b,i)=>`<div class="bl-row${i===0?' new':''}">
-      <span class="bl-num">#${b.n.toLocaleString()}</span>
-      <span class="bl-hash">${b.hash}…</span>
-      <span class="bl-char ${b.t==='digit'?'d':'l'}">${b.last}</span>
-      <span class="bl-tag ${b.t==='digit'?'d':'l'}">${b.t.toUpperCase()}</span>
-      <span class="bl-time">${b.ago} ago</span>
-    </div>`).join('');
+    mkBlocks.map((b,i)=>{
+      const bet=betLog.get(b.n);
+      let rowClass='bl-row'+(i===0?' new':'');
+      let betMarker='';
+      let inlineStyle='';
+      if(bet){
+        const isWin = !bet.pending && bet.won;
+        const isLoss= !bet.pending && !bet.won;
+        if(bet.pending){
+          // still waiting for result
+          rowClass+=' bl-bet-pending';
+          inlineStyle=`background:linear-gradient(90deg,rgba(217,119,6,.10) 0%,transparent 100%);border-left:3px solid var(--amber);`;
+          betMarker=`<span class="bl-bet-marker pending">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${bet.choice.toUpperCase()} · pending
+          </span>`;
+        } else if(isWin){
+          rowClass+=' bl-bet-win';
+          inlineStyle=`background:linear-gradient(90deg,rgba(21,128,61,.12) 0%,transparent 100%);border-left:3px solid var(--green);`;
+          betMarker=`<span class="bl-bet-marker win">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            ${bet.choice.toUpperCase()} · +$${bet.payout?bet.payout.toFixed(2):'—'}
+          </span>`;
+        } else if(isLoss){
+          rowClass+=' bl-bet-loss';
+          inlineStyle=`background:linear-gradient(90deg,rgba(220,38,38,.09) 0%,transparent 100%);border-left:3px solid var(--red);`;
+          betMarker=`<span class="bl-bet-marker loss">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            ${bet.choice.toUpperCase()} · lost
+          </span>`;
+        }
+      }
+      return `<div class="${rowClass}" style="${inlineStyle}">
+        <span class="bl-num">#${b.n.toLocaleString()}</span>
+        <span class="bl-hash">${b.hash}…</span>
+        <span class="bl-char ${b.t==='digit'?'d':'l'}">${b.last}</span>
+        <span class="bl-tag ${b.t==='digit'?'d':'l'}">${b.t.toUpperCase()}</span>
+        ${betMarker}
+        <span class="bl-time" style="margin-left:auto">${b.ago} ago</span>
+      </div>`;
+    }).join('');
 }
 function renderRecent(){
   document.getElementById('tbRecent').innerHTML=
@@ -910,7 +953,7 @@ async function connectWallet(){
   if(!window.ethereum){pushNotif('MetaMask not found','Please install MetaMask to use BlockBet.','err');return;}
   try{
     try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:BASE_CHAIN_ID}]});}
-    catch(sw){if(sw.code===4902)await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:BASE_CHAIN_ID,chainName:'Base',nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},rpcUrls:['https://mainnet.base.org'],blockExplorerUrls:['https://basescan.org']}]});}
+    catch(sw){if(sw.code===4902)await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:BASE_CHAIN_ID,chainName:'Base Sepolia',nativeCurrency:{name:'Ether',symbol:'ETH',decimals:18},rpcUrls:['https://sepolia.base.org'],blockExplorerUrls:['https://sepolia.basescan.org']}]});}
     const accounts=await window.ethereum.request({method:'eth_requestAccounts'});
     wallet=accounts[0];
     if(window.ethers){
@@ -929,10 +972,40 @@ async function connectWallet(){
     document.getElementById('myStatsBox').style.display='block';
     updateBetBtn();
     renderHistory(isDemo?mkHistory:null);
-    if(!isDemo)await loadPlayerData();
-    pushNotif('Wallet connected',short+' connected on Base.','ok');
+    if(!isDemo){
+      await syncContractState();
+      await loadPlayerData();
+    }
+    pushNotif('Wallet connected',short+' connected on Base Sepolia.','ok');
     window.ethereum.on('accountsChanged',()=>location.reload());
   }catch(e){pushNotif('Connection failed',e.message||'User rejected request.','err');}
+}
+
+async function syncContractState(){
+  if(!contract||!provider)return;
+  try{
+    const[round,rid,currentBlock]=await Promise.all([
+      contract.getCurrentRound(),
+      contract.currentRoundId(),
+      provider.getBlockNumber()
+    ]);
+    pool.digit  = Number(round[2])/1e6;
+    pool.letter = Number(round[3])/1e6;
+    updatePool();
+    const roundId   = Number(rid);
+    const targetBlk = Number(round[1]);
+    const blksLeft  = Math.max(0, targetBlk - currentBlock);
+    const secsLeft  = blksLeft * 2;
+    mockRound = roundId;
+    mockBlock = currentBlock;
+    roundCd   = secsLeft > 0 ? secsLeft : 30; // 15 blocks * 2s
+    document.getElementById('roundChip').textContent      = 'ROUND #'+roundId;
+    document.getElementById('blockNum').textContent       = '#'+currentBlock.toLocaleString();
+    document.getElementById('targetBlockLbl').textContent = 'closes at #'+targetBlk.toLocaleString();
+    document.getElementById('cdVal').textContent          = roundCd+'s';
+    document.getElementById('progBar').style.width        = Math.min(((30-roundCd)/30)*100,98)+'%';
+    document.getElementById('progLeft').textContent       = '~'+roundCd+'s remaining';
+  }catch(e){console.warn('Sync error',e);}
 }
 
 async function loadPlayerData(){
@@ -942,9 +1015,31 @@ async function loadPlayerData(){
     document.getElementById('myWon').textContent='$'+(Number(won)/1e6).toFixed(2);
     document.getElementById('myRounds').textContent=rounds.toString();
     const allowance=await usdcContract.allowance(wallet,CONTRACT_ADDRESS);
-    needsApprove = Number(allowance) < 1000000000;
+    needsApprove=Number(allowance)<1000000; // less than 1 USDC
+    document.getElementById('approveNote') && (document.getElementById('approveNote').style.display=needsApprove?'block':'none');
     updateBetBtn();
-  }catch(e){console.warn(e);}
+
+    // Load bet history and populate betLog for block highlighting
+    try{
+      const[ids,amounts,choices,wonArr]=await contract.getPlayerHistory(wallet,50);
+      const hist=[];
+      for(let i=0;i<ids.length;i++){
+        const rId=Number(ids[i]);
+        const amt=Number(amounts[i])/1e6;
+        const ch=Number(choices[i])===0?'digit':'letter';
+        const didWin=wonArr[i];
+        hist.push({round:rId,choice:ch,amt,won:didWin,payout:didWin?amt*1.5:0});
+        // populate betLog — we don't have exact block numbers from contract
+        // so mark round target block in betLog using roundId offset from current
+        const approxTargetBlock = mockBlock - ((mockRound - rId) * 150);
+        betLog.set(approxTargetBlock,{choice:ch,pending:false,won:didWin,payout:didWin?amt*1.5:0});
+      }
+      if(hist.length>0){
+        mkHistory.splice(0,mkHistory.length,...hist);
+        if(document.getElementById('tab-mine').classList.contains('active'))renderHistory(mkHistory);
+      }
+    }catch(e){console.warn('History load error',e);}
+  }catch(e){console.warn('Player data error',e);}
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1012,16 +1107,21 @@ async function placeBet(){
   const txt=document.getElementById('btnBetTxt');
   if(isDemo){
     btn.disabled=true;txt.innerHTML='<span class="spin-sm"></span> Confirming…';
-    activeBet={roundId:mockRound,choice:selectedChoice,amount:amt};
+    // The target block = current block + remaining blocks in this round
+    const targetBlockNum = mockBlock + Math.ceil(roundCd/2);
+    activeBet={roundId:mockRound, choice:selectedChoice, amount:amt, targetBlock:targetBlockNum};
+    // Mark the target block as pending in the log
+    betLog.set(targetBlockNum, {choice:selectedChoice, pending:true, won:false, payout:0});
     setTimeout(()=>{
       const net=amt*0.99;
       if(selectedChoice==='digit')pool.digit+=net;else pool.letter+=net;
       updatePool();
       document.getElementById('amtInput').value='';
       calcEst();updateBetBtn();
-      pushNotif('Bet placed!',`$${amt.toFixed(2)} on ${selectedChoice.toUpperCase()} — Round #${mockRound}`,'ok');
+      pushNotif('Bet placed!',`$${amt.toFixed(2)} on ${selectedChoice.toUpperCase()} — result at block #${targetBlockNum.toLocaleString()}`,'ok');
       mkHistory.unshift({round:mockRound,choice:selectedChoice,amt,won:false,payout:0});
       if(document.getElementById('tab-mine').classList.contains('active'))renderHistory(mkHistory);
+      renderBlocks(); // re-render to show pending highlight immediately
     },1000);
     return;
   }
@@ -1029,11 +1129,16 @@ async function placeBet(){
     btn.disabled=true;txt.innerHTML='<span class="spin-sm"></span> Confirming…';
     const amtU=BigInt(Math.floor(amt*1e6));
     const tx=await contract.placeBet(selectedChoice==='digit'?0:1,amtU);
-    await tx.wait();
-    activeBet={roundId:mockRound,choice:selectedChoice,amount:amt};
-    pushNotif('Bet confirmed!',`$${amt} on ${selectedChoice.toUpperCase()} is live.`,'ok');
+    const receipt=await tx.wait();
+    // Get current targetBlock from contract after bet
+    const round=await contract.getCurrentRound();
+    const targetBlk=Number(round[1]);
+    activeBet={roundId:mockRound,choice:selectedChoice,amount:amt,targetBlock:targetBlk};
+    betLog.set(targetBlk,{choice:selectedChoice,pending:true,won:false,payout:0});
+    renderBlocks();
+    pushNotif('Bet confirmed!',`$${amt} on ${selectedChoice.toUpperCase()} — closes at block #${targetBlk.toLocaleString()}`,'ok');
     document.getElementById('amtInput').value='';
-    calcEst();await loadPlayerData();updateBetBtn();
+    calcEst();await syncContractState();await loadPlayerData();updateBetBtn();
   }catch(e){pushNotif('Transaction failed',e.reason||e.message,'err');updateBetBtn();}
 }
 
@@ -1100,85 +1205,91 @@ function scrollToEl(id){const el=document.getElementById(id);if(el)el.scrollInto
 /* ══════════════════════════════════════════════════════
    LIVE SIMULATION TICK
 ══════════════════════════════════════════════════════ */
-let totalVolume=24710,totalRounds=1892,totalPlayers=3471;
+let totalVolume=0,totalRounds=0,totalPlayers=0;
+
+// Two counters:
+//   blockTick : fires every 2s → new Base block
+//   roundCd   : 30s countdown → new betting round (15 blocks × ~2s)
+let blockTick=0, roundCd=30;
 
 setInterval(()=>{
-  mockCd--;
-  mockProg+=100/9;
+  // ── Round countdown (1s resolution) ──────────────────
+  if(roundCd>0)roundCd--;
+  const progPct=((30-roundCd)/30*100);
+  document.getElementById('cdVal').textContent=roundCd+'s';
+  document.getElementById('progBar').style.width=Math.min(progPct,98)+'%';
+  document.getElementById('progLeft').textContent='~'+roundCd+'s remaining';
+  document.getElementById('sPool').textContent='$'+(pool.digit+pool.letter).toFixed(0);
 
-  // Flash stats occasionally
-  if(Math.random()<0.08){
-    totalVolume+=Math.floor(Math.random()*50)+5;
-    const el=document.getElementById('sVolume');
-    el.textContent='$'+totalVolume.toLocaleString();
-    el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
-  }
-
-  if(mockCd<=0){
-    mockCd=2+Math.floor(Math.random()*3); // Base ~2s blocks
-    mockProg=0;
+  // ── New Base block every 2s ───────────────────────────
+  blockTick++;
+  if(blockTick%2===0){
     mockBlock++;
-    totalRounds++;
-
     const newLast=HEX[Math.floor(Math.random()*16)];
     const isDig=/[0-9]/.test(newLast);
     const type=isDig?'digit':'letter';
-
-    // update display
     document.getElementById('blockNum').textContent='#'+mockBlock.toLocaleString();
     document.getElementById('lcChar').textContent=newLast;
     document.getElementById('lcChar').className='lc-char '+(isDig?'d':'l');
     document.getElementById('lcTag').textContent=isDig?'DIGIT':'LETTER';
     document.getElementById('lcTag').className='lc-tag '+(isDig?'d':'l');
-    document.getElementById('sRounds').textContent=totalRounds.toLocaleString();
-
-    // new block in list
     const h='0x'+Array.from({length:16},()=>HEX[Math.floor(Math.random()*16)]).join('');
     mkBlocks.unshift({n:mockBlock,hash:h,last:newLast,t:type,ago:'just now'});
     if(mkBlocks.length>10)mkBlocks.pop();
-    mkBlocks.forEach((b,i)=>{if(i>0)b.ago=(i*mockCd+i)+'s';});
+    mkBlocks.forEach((b,i)=>{if(i>0)b.ago=(i*2)+'s ago';});
     renderBlocks();
-
-    // every 5 blocks = new round
-    if(mockBlock%5===0){
-      mockRound++;
-      document.getElementById('roundChip').textContent='ROUND #'+mockRound;
-
-      // check if user had a bet
-      if(activeBet&&activeBet.roundId===mockRound-1){
-        const didWin=(activeBet.choice===type);
-        const total2=pool.digit+pool.letter;
-        const wp=activeBet.choice==='digit'?pool.digit:pool.letter;
-        const payout=wp>0?(activeBet.amount*0.99/wp)*total2*0.99:0;
-
-        if(notifyEnabled||true){ // always show overlay for demo
-          setTimeout(()=>showResult(didWin,newLast,type,didWin?payout:activeBet.amount),300);
-        }
-        if(notifyEnabled){
-          pushNotif(didWin?'You won! 🎉':'Round lost',didWin?`+$${payout.toFixed(2)} USDC credited to your wallet`:`Better luck next round!`,didWin?'ok':'err');
-        }
-        // update mock history
-        if(mkHistory[0]&&mkHistory[0].round===activeBet.roundId){
-          mkHistory[0].won=didWin;mkHistory[0].payout=didWin?payout:0;
-        }
-        // update stats
-        document.getElementById('myWagered').textContent='$'+activeBet.amount.toFixed(2);
-        document.getElementById('myWon').textContent=didWin?'$'+payout.toFixed(2):'$0.00';
-        activeBet=null;
-      }
-
-      // new round pool
-      pool.digit=150+Math.random()*400;
-      pool.letter=100+Math.random()*300;
-      updatePool();
-    }
+    const blocksLeft=Math.ceil(roundCd/2);
+    document.getElementById('targetBlockLbl').textContent='closes at #'+(mockBlock+blocksLeft).toLocaleString();
   }
 
-  document.getElementById('cdVal').textContent=mockCd+'s';
-  document.getElementById('progBar').style.width=Math.min(mockProg,97)+'%';
-  document.getElementById('progLeft').textContent='~'+mockCd+'s remaining';
-  document.getElementById('targetBlockLbl').textContent='closes at #'+(mockBlock+5).toLocaleString();
-  document.getElementById('sPool').textContent='$'+(pool.digit+pool.letter).toFixed(0);
+  // Occasional volume flash — only if real data loaded
+  if(Math.random()<0.02 && totalVolume>0){
+    const el=document.getElementById('sVolume');
+    el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');
+  }
+
+  // ── Round end: every 300s ──────────────────────────────
+  if(roundCd<=0){
+    roundCd=30;
+    mockRound++;
+    document.getElementById('roundChip').textContent='ROUND #'+mockRound;
+
+    const resultChar=mkBlocks[0]?.last||'4';
+    const resultDig=/[0-9]/.test(resultChar);
+    const resultType=resultDig?'digit':'letter';
+
+    if(activeBet&&activeBet.roundId===mockRound-1){
+      const didWin=(activeBet.choice===resultType);
+      const total2=pool.digit+pool.letter;
+      const wp=activeBet.choice==='digit'?pool.digit:pool.letter;
+      const payout=wp>0?(activeBet.amount/wp)*total2:0;
+      if(activeBet.targetBlock){
+        betLog.set(activeBet.targetBlock,{choice:activeBet.choice,pending:false,won:didWin,payout:didWin?payout:0});
+      }
+      setTimeout(()=>showResult(didWin,resultChar,resultType,didWin?payout:activeBet.amount),400);
+      if(notifyEnabled){
+        pushNotif(
+          didWin?'You won! 🎉':'Round lost',
+          didWin?`+$${payout.toFixed(2)} USDC sent to your wallet`:`Better luck next round!`,
+          didWin?'ok':'err'
+        );
+      }
+      if(mkHistory[0]&&mkHistory[0].round===activeBet.roundId){
+        mkHistory[0].won=didWin;mkHistory[0].payout=didWin?payout:0;
+      }
+      document.getElementById('myWagered').textContent='$'+activeBet.amount.toFixed(2);
+      document.getElementById('myWon').textContent=didWin?'$'+payout.toFixed(2):'$0.00';
+      activeBet=null;
+      renderBlocks();
+    }
+
+    pool.digit=150+Math.random()*400;
+    pool.letter=100+Math.random()*300;
+    updatePool();
+
+    // Sync with real contract after each round
+    if(!isDemo&&contract)syncContractState();
+  }
 },1000);
 
 /* ══════════════════════════════════════════════════════
